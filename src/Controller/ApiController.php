@@ -2,11 +2,17 @@
 
 namespace App\Controller;
 
+use App\Entity\Ingredient;
 use App\Entity\Pizza;
 use App\Entity\PizzaIngredient;
 use App\Repository\PizzaRepository;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Attribute\MapQueryParameter;
+use Symfony\Component\HttpKernel\Attribute\MapRequestPayload;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ApiController extends AbstractController
@@ -21,7 +27,7 @@ class ApiController extends AbstractController
     }
 
     #[Route('/api/list_pizzas', name: 'api.list_pizzas')]
-    public function listPizzas(PizzaRepository $pizzaRepository)
+    public function listPizzas(PizzaRepository $pizzaRepository): JsonResponse
     {
         $pizzas = $pizzaRepository->findAll();
         return $this->json(
@@ -40,9 +46,30 @@ class ApiController extends AbstractController
     }
 
     #[Route('/api/add_pizza', name: 'api.add_pizza')]
-    public function addPizza()
+    public function addPizza(
+        #[MapQueryParameter] string $name,
+        #[MapQueryParameter] array  $ingredients,
+        Request                     $request,
+        EntityManagerInterface      $entityManager
+    ): JsonResponse
     {
-        // TODO: write
+        $pizza = new Pizza();
+        $pizza->setName($name);
+
+        foreach ($ingredients as $ingredientName) {
+            $ingredient = $entityManager->getRepository(Ingredient::class)->findOneBy(['name' => $ingredientName]);
+            if (!$ingredient) {
+                $ingredient = new Ingredient();
+                $ingredient->setName($ingredientName);
+                $entityManager->persist($ingredient);
+            }
+
+            $pizza->addIngredient($ingredient);
+        }
+
+        $entityManager->persist($pizza);
+
+        return $this->json('ok');
     }
 
     #[Route('/api/add_ingredient', name: 'api.add_ingredient')]

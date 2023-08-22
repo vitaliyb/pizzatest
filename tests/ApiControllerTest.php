@@ -91,4 +91,67 @@ class ApiControllerTest extends WebTestCase
             ]
         ], json_decode($client->getResponse()->getContent(), true));
     }
+
+
+    /**
+     * @uses \App\Controller\ApiController::addPizza()
+     */
+    public function testItAddsPizza(): void
+    {
+        self::ensureKernelShutdown();
+
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/api/add_pizza', [
+            'name' => 'Brand new pizza',
+            'ingredients' => ['Olives', 'Cheese', 'Meat']
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertEquals('ok', json_decode($client->getResponse()->getContent(), true));
+    }
+
+
+    /**
+     * @uses \App\Controller\ApiController::addPizza()
+     */
+    public function testItFailsToAddPizzaWithoutName(): void
+    {
+        self::ensureKernelShutdown();
+
+        $client = static::createClient();
+        $crawler = $client->request('POST', '/api/add_pizza', [
+            'ingredients' => ['Olives', 'Cheese', 'Meat']
+        ]);
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+
+    /**
+     * @uses \App\Controller\ApiController::addPizza()
+     */
+    public function testItFailsToAddPizzaWithoutIngredients(): void
+    {
+        self::ensureKernelShutdown();
+
+        $client = static::createClient();
+        $crawler = $client->request('POST', '/api/add_pizza', [
+            'name' => 'Brand new pizza',
+        ]);
+
+        $this->assertResponseStatusCodeSame(404);
+    }
+
+
+    /**
+     * @uses \App\Controller\ApiController::addPizza()
+     */
+    public function testItFailsToAddPizzaWithoutParameters(): void
+    {
+        self::ensureKernelShutdown();
+        $client = static::createClient();
+        $crawler = $client->request('POST', '/api/add_pizza');
+
+        $this->assertResponseStatusCodeSame(404);
+    }
 }

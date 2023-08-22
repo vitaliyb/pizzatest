@@ -21,7 +21,8 @@ class Pizza
     #[ORM\Column]
     private ?int $price = null;
 
-    #[ORM\OneToMany(mappedBy: 'pizza_id', targetEntity: PizzaIngredient::class, orphanRemoval: true)]
+    #[ORM\OneToMany(mappedBy: 'pizza_id', targetEntity: PizzaIngredient::class, cascade: ['persist'], orphanRemoval: true)]
+    //'persist'
     private Collection $pizzaIngredients;
 
     public function __construct()
@@ -71,6 +72,18 @@ class Pizza
         if (!$this->pizzaIngredients->contains($pizzaIngredient)) {
             $this->pizzaIngredients->add($pizzaIngredient);
             $pizzaIngredient->setPizzaId($this);
+        }
+
+        return $this;
+    }
+
+    public function addIngredient(Ingredient $ingredient): static
+    {
+        if (!$this->pizzaIngredients->contains($ingredient)) {
+            $pizzaIngredient = new PizzaIngredient();
+            $pizzaIngredient->setPizzaId($this);
+            $pizzaIngredient->setIngredientId($ingredient);
+            $this->pizzaIngredients->add($pizzaIngredient);
         }
 
         return $this;

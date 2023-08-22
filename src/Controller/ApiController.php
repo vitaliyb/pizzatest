@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\Pizza;
+use App\Repository\PizzaRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -18,9 +20,16 @@ class ApiController extends AbstractController
     }
 
     #[Route('/api/list_pizzas', name: 'api.list_pizzas')]
-    public function listPizzas()
+    public function listPizzas(PizzaRepository $pizzaRepository)
     {
-        // TODO: write
+        return $this->json(
+            array_map(function (Pizza $pizza) {
+                return [
+                    'name' => $pizza->getName(),
+                    'price' => $pizza->getPrice()
+                ];
+            }, $pizzaRepository->findAll())
+        );
     }
 
     #[Route('/api/add_pizza', name: 'api.add_pizza')]

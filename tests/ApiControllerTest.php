@@ -108,12 +108,21 @@ class ApiControllerTest extends WebTestCase
             'ingredients' => [
                 ['name' => 'Olives', 'price' => 2.50],
                 ['name' => 'Cheese', 'price' => 5],
-                ['name' => 'Meat', 'price' => 7]
+                // TODO: ResetDatabase is not working? I had to change Meat to Meat balls to avoid price conflicts
+                ['name' => 'Meat balls', 'price' => 7]
             ]
         ]);
 
         $this->assertResponseIsSuccessful();
-        $this->assertEquals('ok', json_decode($client->getResponse()->getContent(), true));
+        $this->assertEquals([
+            'name' => 'Brand new pizza',
+            'ingredients' => [
+                'Olives',
+                'Cheese',
+                'Meat balls'
+            ],
+            'price' => 14.50
+        ], json_decode($client->getResponse()->getContent(), true));
     }
 
 

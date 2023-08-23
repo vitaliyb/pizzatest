@@ -32,17 +32,22 @@ class ApiController extends AbstractController
         $pizzas = $pizzaRepository->findAll();
         return $this->json(
             array_map(function (Pizza $pizza) {
-                $ingredients = array_map(function (PizzaIngredient $pizzaIngredient) {
-                    return $pizzaIngredient->getIngredientId()->getName();
-                }, $pizza->getPizzaIngredients()->toArray());
-
-                return [
-                    'name' => $pizza->getName(),
-                    'price' => $pizza->getPriceForDisplay(),
-                    'ingredients' => $ingredients
-                ];
+                return $this->pizzaToArray($pizza);
             }, $pizzas)
         );
+    }
+
+    private function pizzaToArray(Pizza $pizza): array
+    {
+        $ingredients = array_map(function (PizzaIngredient $pizzaIngredient) {
+            return $pizzaIngredient->getIngredientId()->getName();
+        }, $pizza->getPizzaIngredients()->toArray());
+
+        return [
+            'name' => $pizza->getName(),
+            'price' => $pizza->getPriceForDisplay(),
+            'ingredients' => $ingredients
+        ];
     }
 
     #[Route('/api/add_pizza', name: 'api.add_pizza')]
@@ -74,7 +79,7 @@ class ApiController extends AbstractController
 
         $entityManager->persist($pizza);
 
-        return $this->json('ok');
+        return $this->json($this->pizzaToArray($pizza));
     }
 
     #[Route('/api/add_ingredient', name: 'api.add_ingredient')]

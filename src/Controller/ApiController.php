@@ -62,19 +62,7 @@ class ApiController extends AbstractController
         $pizza->setName($name);
 
         foreach ($ingredients as $ingredientProperties) {
-            $ingredientName = $ingredientProperties['name'];
-            $ingredientPrice = $ingredientProperties['price'];
-
-            $ingredient = $entityManager->getRepository(Ingredient::class)->findOneBy(['name' => $ingredientName]);
-            if (!$ingredient) {
-                $ingredient = new Ingredient();
-                $ingredient->setName($ingredientName);
-                $ingredient->setPrice($ingredientPrice);
-
-                $entityManager->persist($ingredient);
-            }
-
-            $pizza->addIngredient($ingredient);
+            $this->addIngredientToPizza($entityManager, $pizza, $ingredientProperties['name'], $ingredientProperties['price']);
         }
 
         $entityManager->persist($pizza);
@@ -82,10 +70,36 @@ class ApiController extends AbstractController
         return $this->json($this->pizzaToArray($pizza));
     }
 
-    #[Route('/api/add_ingredient', name: 'api.add_ingredient')]
-    public function addIngredient()
+    private function addIngredientToPizza(EntityManagerInterface $entityManager, Pizza $pizza, $ingredientName, $ingredientPrice)
     {
-        // TODO: write
+        $ingredient = $entityManager->getRepository(Ingredient::class)->findOneBy(['name' => $ingredientName]);
+        if (!$ingredient) {
+            $ingredient = new Ingredient();
+            $ingredient->setName($ingredientName);
+            $ingredient->setPrice($ingredientPrice);
+
+            $entityManager->persist($ingredient);
+        }
+
+        $pizza->addIngredient($ingredient);
+    }
+
+    #[Route('/api/add_ingredient', name: 'api.add_ingredient')]
+    public function addIngredient(
+        #[MapQueryParameter] int    $pizza_id,
+        #[MapQueryParameter] string $ingredient_name,
+        #[MapQueryParameter] float  $ingredient_price,
+        Request                     $request,
+        EntityManagerInterface      $entityManager
+    ): JsonResponse
+    {
+        $pizza = $entityManager->getRepository(Pizza::class)->find($pizza_id);
+
+        $this->addIngredientToPizza($entityManager, $pizza, $ingredient_name, $ingredient_price);
+
+        $entityManager->persist($pizza);
+
+        return $this->json($this->pizzaToArray($pizza));
     }
 
     #[Route('/api/remove_ingredient', name: 'api.remove_ingredient')]

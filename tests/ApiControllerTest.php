@@ -2,8 +2,10 @@
 
 namespace App\Tests;
 
+use App\Entity\Pizza;
 use App\Factory\IngredientFactory;
 use App\Factory\PizzaFactory;
+use App\Repository\PizzaRepository;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -172,5 +174,37 @@ class ApiControllerTest extends WebTestCase
         $crawler = $client->request('POST', '/api/add_pizza');
 
         $this->assertResponseStatusCodeSame(404);
+    }
+
+
+    /**
+     * @uses \App\Controller\ApiController::addIngredient()
+     */
+    public function testItAddsIngredientToPizza()
+    {
+        $this->createDataForTest();
+
+        self::ensureKernelShutdown();
+
+        $pizza = $this->entityManager->getRepository(Pizza::class)
+            ->findOneBy(['name' => 'My pizza']);
+
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/api/add_ingredient', [
+            'pizza_id' => $pizza->getId(),
+            'ingredient_name' => 'Banana',
+            'ingredient_price' => 1.99
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertEquals([
+            'name' => 'My pizza',
+            'ingredients' => [
+                'Tomato',
+                'Cheese',
+                'Banana'
+            ],
+            'price' => 9.49
+        ], json_decode($client->getResponse()->getContent(), true));
     }
 }

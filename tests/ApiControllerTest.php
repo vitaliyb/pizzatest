@@ -79,14 +79,14 @@ class ApiControllerTest extends WebTestCase
         $this->assertEquals([
             [
                 'name' => 'My pizza',
-                'price' => 7.50,
+                'price' => 11.25,
                 'ingredients' => [
                     'Tomato', 'Cheese'
                 ]
             ],
             [
                 'name' => 'Not my pizza',
-                'price' => 12.50,
+                'price' => 18.75,
                 'ingredients' => [
                     'Tomato', 'Meat'
                 ]
@@ -121,7 +121,7 @@ class ApiControllerTest extends WebTestCase
                 'Cheese',
                 'Meat balls'
             ],
-            'price' => 14.50
+            'price' => 21.75
         ], json_decode($client->getResponse()->getContent(), true));
     }
 
@@ -202,7 +202,7 @@ class ApiControllerTest extends WebTestCase
                 'Cheese',
                 'Banana'
             ],
-            'price' => 9.49
+            'price' => 14.23
         ], json_decode($client->getResponse()->getContent(), true));
     }
 
@@ -230,7 +230,7 @@ class ApiControllerTest extends WebTestCase
             'ingredients' => [
                 'Cheese'
             ],
-            'price' => 5
+            'price' => 7.5
         ], json_decode($client->getResponse()->getContent(), true));
     }
 }

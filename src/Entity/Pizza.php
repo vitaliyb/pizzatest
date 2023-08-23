@@ -11,6 +11,9 @@ use Doctrine\ORM\Mapping as ORM;
 #[ORM\HasLifecycleCallbacks]
 class Pizza
 {
+
+    const PIZZA_MARKUP = 0.5;
+
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
@@ -108,6 +111,11 @@ class Pizza
         foreach ($this->pizzaIngredients as $pizzaIngredient) {
             $price += $pizzaIngredient->getIngredientId()->getPrice();
         }
+
+        $price += $price * self::PIZZA_MARKUP;
+
+        $price = floor($price);
+
         $this->setPrice($price);
     }
 

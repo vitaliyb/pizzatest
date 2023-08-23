@@ -207,4 +207,32 @@ class ApiControllerTest extends WebTestCase
             'price' => 9.49
         ], json_decode($client->getResponse()->getContent(), true));
     }
+
+    /**
+     * @uses \App\Controller\ApiController::removeIngredient()
+     */
+    public function testItRemovesIngredient()
+    {
+        $this->createDataForTest();
+
+        self::ensureKernelShutdown();
+
+        $pizza = $this->entityManager->getRepository(Pizza::class)
+            ->findOneBy(['name' => 'My pizza']);
+
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/api/remove_ingredient', [
+            'pizza_id' => $pizza->getId(),
+            'ingredient_name' => 'Tomato',
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertEquals([
+            'name' => 'My pizza',
+            'ingredients' => [
+                'Cheese'
+            ],
+            'price' => 5
+        ], json_decode($client->getResponse()->getContent(), true));
+    }
 }

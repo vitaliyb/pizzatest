@@ -39,14 +39,18 @@ class ApiController extends AbstractController
 
     private function pizzaToArray(Pizza $pizza): array
     {
-        $ingredients = array_map(function (PizzaIngredient $pizzaIngredient) {
+        // TODO: removing pizza ingredients affects array index
+        $ingredients = $pizza->getPizzaIngredients()->toArray();
+        $ingredients = array_values($ingredients);
+
+        $ingredientsNames = array_map(function (PizzaIngredient $pizzaIngredient) {
             return $pizzaIngredient->getIngredientId()->getName();
-        }, $pizza->getPizzaIngredients()->toArray());
+        }, $ingredients);
 
         return [
             'name' => $pizza->getName(),
             'price' => $pizza->getPriceForDisplay(),
-            'ingredients' => $ingredients
+            'ingredients' => $ingredientsNames
         ];
     }
 
@@ -103,8 +107,30 @@ class ApiController extends AbstractController
     }
 
     #[Route('/api/remove_ingredient', name: 'api.remove_ingredient')]
-    public function removeIngredient()
+    public function removeIngredient(
+        #[MapQueryParameter] int    $pizza_id,
+        #[MapQueryParameter] string $ingredient_name,
+        Request                     $request,
+        EntityManagerInterface      $entityManager
+    ): JsonResponse
     {
-        // TODO: write
+        $pizza = $entityManager->getRepository(Pizza::class)->find($pizza_id);
+        $ingredient = $entityManager->getRepository(Ingredient::class)->findOneBy(['name' => $ingredient_name]);
+
+        if ($ingredient) {
+            $pizzaIngredient = $entityManager->getRepository(PizzaIngredient::class)->findOneBy([
+                'ingredient_id' => $ingredient->getId(),
+                'pizza_id' => $pizza->getId()
+            ]);
+
+            if ($pizzaIngredient) {
+                $pizza->removePizzaIngredient($pizzaIngredient);
+                $entityManager->persist($pizzaIngredient);
+                $entityManager->persist($pizza);
+                $entityManager->flush();
+            }
+        }
+
+        return $this->json($this->pizzaToArray($pizza));
     }
 }

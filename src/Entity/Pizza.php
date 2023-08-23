@@ -118,6 +118,8 @@ class Pizza
             if ($pizzaIngredient->getPizzaId() === $this) {
                 $pizzaIngredient->setPizzaId(null);
             }
+
+            $this->updatePrice();
         }
 
         return $this;

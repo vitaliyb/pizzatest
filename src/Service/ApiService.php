@@ -32,6 +32,10 @@ class ApiService
         $ingredients = $pizza->getPizzaIngredients()->toArray();
         $ingredients = array_values($ingredients);
 
+        usort($ingredients, function (PizzaIngredient $pizzaIngredient1, PizzaIngredient $pizzaIngredient2) {
+            return $pizzaIngredient1->getLayer() <=> $pizzaIngredient2->getLayer();
+        });
+
         $ingredientsNames = array_map(function (PizzaIngredient $pizzaIngredient) {
             return $pizzaIngredient->getIngredientId()->getName();
         }, $ingredients);
@@ -71,7 +75,8 @@ class ApiService
         $pizza->setName($name);
 
         foreach ($ingredients as $ingredientProperties) {
-            $this->addIngredientToPizza($pizza, $ingredientProperties['name'], $ingredientProperties['price']);
+            $layer = $ingredientProperties['layer'] ?? null;
+            $this->addIngredientToPizza($pizza, $ingredientProperties['name'], $ingredientProperties['price'], $layer);
         }
 
         $this->entityManager->persist($pizza);
@@ -79,7 +84,7 @@ class ApiService
         return $this->pizzaToArray($pizza);
     }
 
-    private function addIngredientToPizza(Pizza $pizza, $ingredientName, $ingredientPrice): void
+    private function addIngredientToPizza(Pizza $pizza, $ingredientName, $ingredientPrice, $layer = null): void
     {
         $ingredient = $this->entityManager->getRepository(Ingredient::class)->findOneBy(['name' => $ingredientName]);
 
@@ -91,7 +96,7 @@ class ApiService
             $this->entityManager->persist($ingredient);
         }
 
-        $pizza->addIngredient($ingredient);
+        $pizza->addIngredient($ingredient, $layer);
     }
 
     public function addIngredient($pizza_id, $ingredient_name, $ingredient_price)

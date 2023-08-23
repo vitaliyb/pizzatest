@@ -87,12 +87,13 @@ class Pizza
         return $this;
     }
 
-    public function addIngredient(Ingredient $ingredient): static
+    public function addIngredient(Ingredient $ingredient, $layer = null): static
     {
         if (!$this->pizzaIngredients->contains($ingredient)) {
             $pizzaIngredient = new PizzaIngredient();
             $pizzaIngredient->setPizzaId($this);
             $pizzaIngredient->setIngredientId($ingredient);
+            $pizzaIngredient->setLayer($layer);
             $this->pizzaIngredients->add($pizzaIngredient);
 
             $this->updatePrice();

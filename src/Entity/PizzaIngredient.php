@@ -21,6 +21,9 @@ class PizzaIngredient
     #[ORM\JoinColumn(nullable: false)]
     private ?Ingredient $ingredient_id = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?int $layer = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -46,6 +49,18 @@ class PizzaIngredient
     public function setIngredientId(?Ingredient $ingredient_id): static
     {
         $this->ingredient_id = $ingredient_id;
+
+        return $this;
+    }
+
+    public function getLayer(): ?int
+    {
+        return $this->layer;
+    }
+
+    public function setLayer(?int $layer): static
+    {
+        $this->layer = $layer;
 
         return $this;
     }

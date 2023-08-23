@@ -129,6 +129,36 @@ class ApiControllerTest extends WebTestCase
     /**
      * @uses \App\Controller\ApiController::addPizza()
      */
+    public function testItAddsPizzaWithLayers(): void
+    {
+        self::ensureKernelShutdown();
+
+        $client = static::createClient();
+        $crawler = $client->request('GET', '/api/add_pizza', [
+            'name' => 'Brand new pizza',
+            'ingredients' => [
+                ['name' => 'Mushrooms', 'price' => 1, 'layer' => 2],
+                ['name' => 'Oregano', 'price' => 1, 'layer' => 3],
+                ['name' => 'Brie', 'price' => 1, 'layer' => 1]
+            ]
+        ]);
+
+        $this->assertResponseIsSuccessful();
+        $this->assertEquals([
+            'name' => 'Brand new pizza',
+            'ingredients' => [
+                'Brie',
+                'Mushrooms',
+                'Oregano',
+            ],
+            'price' => 4.5
+        ], json_decode($client->getResponse()->getContent(), true));
+    }
+
+
+    /**
+     * @uses \App\Controller\ApiController::addPizza()
+     */
     public function testItFailsToAddPizzaWithoutName(): void
     {
         self::ensureKernelShutdown();

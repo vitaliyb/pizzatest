@@ -6,6 +6,7 @@ use App\Factory\IngredientFactory;
 use App\Factory\PizzaFactory;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 
@@ -103,7 +104,11 @@ class ApiControllerTest extends WebTestCase
         $client = static::createClient();
         $crawler = $client->request('GET', '/api/add_pizza', [
             'name' => 'Brand new pizza',
-            'ingredients' => ['Olives', 'Cheese', 'Meat']
+            'ingredients' => [
+                ['name' => 'Olives', 'price' => 2.50],
+                ['name' => 'Cheese', 'price' => 5],
+                ['name' => 'Meat', 'price' => 7]
+            ]
         ]);
 
         $this->assertResponseIsSuccessful();
@@ -119,8 +124,12 @@ class ApiControllerTest extends WebTestCase
         self::ensureKernelShutdown();
 
         $client = static::createClient();
-        $crawler = $client->request('POST', '/api/add_pizza', [
-            'ingredients' => ['Olives', 'Cheese', 'Meat']
+        $crawler = $client->request('GET', '/api/add_pizza', [
+            'ingredients' => [
+                ['name' => 'Olives', 'price' => 2.50],
+                ['name' => 'Cheese', 'price' => 5],
+                ['name' => 'Meat', 'price' => 7]
+            ]
         ]);
 
         $this->assertResponseStatusCodeSame(404);

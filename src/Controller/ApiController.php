@@ -56,11 +56,16 @@ class ApiController extends AbstractController
         $pizza = new Pizza();
         $pizza->setName($name);
 
-        foreach ($ingredients as $ingredientName) {
+        foreach ($ingredients as $ingredientProperties) {
+            $ingredientName = $ingredientProperties['name'];
+            $ingredientPrice = $ingredientProperties['price'];
+
             $ingredient = $entityManager->getRepository(Ingredient::class)->findOneBy(['name' => $ingredientName]);
             if (!$ingredient) {
                 $ingredient = new Ingredient();
                 $ingredient->setName($ingredientName);
+                $ingredient->setPrice($ingredientPrice);
+
                 $entityManager->persist($ingredient);
             }
 

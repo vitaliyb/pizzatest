@@ -48,7 +48,7 @@ final class IngredientFactory extends ModelFactory
     {
         return [
             'name' => self::faker()->text(255),
-            'price' => self::faker()->randomNumber(),
+            'price' => self::faker()->randomNumber() / 100,
         ];
     }
 

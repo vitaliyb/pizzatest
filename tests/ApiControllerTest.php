@@ -5,10 +5,8 @@ namespace App\Tests;
 use App\Entity\Pizza;
 use App\Factory\IngredientFactory;
 use App\Factory\PizzaFactory;
-use App\Repository\PizzaRepository;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Zenstruck\Foundry\Test\Factories;
 use Zenstruck\Foundry\Test\ResetDatabase;
 

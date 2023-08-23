@@ -38,7 +38,7 @@ class ApiController extends AbstractController
 
                 return [
                     'name' => $pizza->getName(),
-                    'price' => $pizza->getPrice(),
+                    'price' => $pizza->getPriceForDisplay(),
                     'ingredients' => $ingredients
                 ];
             }, $pizzas)

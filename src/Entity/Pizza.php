@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: PizzaRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Pizza
 {
     #[ORM\Id]
@@ -59,6 +60,12 @@ class Pizza
         return $this;
     }
 
+    public function getPriceForDisplay(): float
+    {
+        // TODO: move to helpers
+        return $this->getPrice() / 100;
+    }
+
     /**
      * @return Collection<int, PizzaIngredient>
      */
@@ -84,9 +91,24 @@ class Pizza
             $pizzaIngredient->setPizzaId($this);
             $pizzaIngredient->setIngredientId($ingredient);
             $this->pizzaIngredients->add($pizzaIngredient);
+
+            $this->updatePrice();
         }
 
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function updatePrice(): void
+    {
+        $price = 0;
+        /**
+         * @var $pizzaIngredient PizzaIngredient
+         */
+        foreach ($this->pizzaIngredients as $pizzaIngredient) {
+            $price += $pizzaIngredient->getIngredientId()->getPrice();
+        }
+        $this->setPrice($price);
     }
 
     public function removePizzaIngredient(PizzaIngredient $pizzaIngredient): static

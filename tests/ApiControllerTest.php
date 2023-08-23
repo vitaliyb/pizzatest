@@ -20,27 +20,28 @@ class ApiControllerTest extends WebTestCase
     private function createDataForTest()
     {
         $tomato = IngredientFactory::createOne([
-            'name' => 'Tomato'
+            'name' => 'Tomato',
+            'price' => 2.50
         ]);
 
         $cheese = IngredientFactory::createOne([
-            'name' => 'Cheese'
+            'name' => 'Cheese',
+            'price' => 5
         ]);
 
         $meat = IngredientFactory::createOne([
-            'name' => 'Meat'
+            'name' => 'Meat',
+            'price' => 10
         ]);
 
         $myPizza = PizzaFactory::createOne([
             'name' => 'My pizza',
-            'price' => 200,
         ])
             ->addIngredient($tomato->object())
             ->addIngredient($cheese->object());
 
         $notMyPizza = PizzaFactory::createOne([
-            'name' => 'Not my pizza',
-            'price' => 400
+            'name' => 'Not my pizza'
         ])
             ->addIngredient($tomato->object())
             ->addIngredient($meat->object());
@@ -78,14 +79,14 @@ class ApiControllerTest extends WebTestCase
         $this->assertEquals([
             [
                 'name' => 'My pizza',
-                'price' => 200,
+                'price' => 7.50,
                 'ingredients' => [
                     'Tomato', 'Cheese'
                 ]
             ],
             [
                 'name' => 'Not my pizza',
-                'price' => 400,
+                'price' => 12.50,
                 'ingredients' => [
                     'Tomato', 'Meat'
                 ]
